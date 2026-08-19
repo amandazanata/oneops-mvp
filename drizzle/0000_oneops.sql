@@ -18,17 +18,6 @@ CREATE TABLE `state_mutations` (
   `created_at` text NOT NULL
 );
 --> statement-breakpoint
-CREATE TRIGGER `state_mutations_guard`
-BEFORE INSERT ON `state_mutations`
-BEGIN
-  SELECT CASE WHEN NOT EXISTS (
-    SELECT 1 FROM `oneops_state`
-    WHERE `id` = 1
-      AND `generation` = NEW.`generation`
-      AND `version` = NEW.`expected_version`
-  ) THEN RAISE(ABORT, 'ONEOPS_VERSION_CONFLICT') END;
-END;
---> statement-breakpoint
 CREATE TABLE `plan_applications` (
   `plan_id` text PRIMARY KEY NOT NULL,
   `generation` integer NOT NULL,
@@ -39,17 +28,6 @@ CREATE TABLE `plan_applications` (
   `result_json` text NOT NULL,
   `applied_at` text NOT NULL
 );
---> statement-breakpoint
-CREATE TRIGGER `plan_applications_guard`
-BEFORE INSERT ON `plan_applications`
-BEGIN
-  SELECT CASE WHEN NOT EXISTS (
-    SELECT 1 FROM `oneops_state`
-    WHERE `id` = 1
-      AND `generation` = NEW.`generation`
-      AND `version` = NEW.`base_version`
-  ) THEN RAISE(ABORT, 'ONEOPS_VERSION_CONFLICT') END;
-END;
 --> statement-breakpoint
 CREATE TABLE `audit_entries` (
   `id` text PRIMARY KEY NOT NULL,
